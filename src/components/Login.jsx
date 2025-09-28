@@ -1,7 +1,14 @@
 import { NETFLIX_LOGO, LOGIN_BG_IMG } from '@/utils/constants'
 import Header from './Header'
+import { useState } from 'react'
 
 const Login = () => {
+    const [isSignInForm, setIsSignInForm] = useState(true)
+
+    const toggleSignInForm = () => {
+        setIsSignInForm((prev) => !prev)
+    }
+
     return (
         <div className="relative h-screen w-screen">
             <img
@@ -12,10 +19,10 @@ const Login = () => {
 
             <div className="absolute top-0 left-0 w-full h-full bg-black/50">
                 <Header />
-                <div></div>
+
                 <form className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/70 p-8 w-100 flex flex-col">
                     <h2 className="text-white text-3xl font-bold text-center mb-6">
-                        Sign In
+                        {isSignInForm ? 'Sign In' : 'Sign Up'}
                     </h2>
                     <input
                         type="text"
@@ -28,18 +35,21 @@ const Login = () => {
                         className="p-4 my-3 rounded border text-white border-s-white"
                     />
                     <button className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded my-3 cursor-pointer">
-                        Login
+                        {isSignInForm ? 'Login' : 'Sign Up'}
                     </button>
-
-                    <p className="text-white py-2 text-center">OR</p>
-
-                    <button className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded my-3 cursor-pointer">
-                        Use a Sign In Code
-                    </button>
-
+                    (
                     <p className="text-white py-2">
-                        New to Netflix? Sign up now.
+                        {isSignInForm
+                            ? 'New to Netflix? '
+                            : 'Already a member? '}
+                        <span
+                            onClick={toggleSignInForm}
+                            className="hover:underline cursor-pointer"
+                        >
+                            {isSignInForm ? 'Sign up now.' : 'Login.'}
+                        </span>
                     </p>
+                    )
                 </form>
             </div>
         </div>
