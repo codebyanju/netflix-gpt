@@ -27,6 +27,11 @@ const Login = () => {
             isSignInForm: isSignInForm
         })
         setFormErrors(errors)
+
+        console.log(Object.keys(errors))
+        if (Object.keys(errors).length === 0) {
+            console.log('Form is valid ✅')
+        }
     }
 
     return (
