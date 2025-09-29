@@ -8,7 +8,7 @@ const Login = () => {
     const email = useRef(null)
     const password = useRef(null)
     const [isSignInForm, setIsSignInForm] = useState(true)
-    const [errorMsg, setErrorMsg] = useState(null)
+    const [formErrors, setFormErrors] = useState({})
 
     useEffect(() => {
         email.current.focus()
@@ -20,13 +20,13 @@ const Login = () => {
     }
 
     const validateForm = () => {
-        const msg = validateFormFields(
-            name?.current.value,
-            email?.current.value,
-            password?.current.value
-        )
-        setErrorMsg(msg)
-        console.log(msg)
+        const errors = validateFormFields({
+            name: isSignInForm ? '' : name?.current.value,
+            email: email?.current.value,
+            password: password?.current.value,
+            isSignInForm: isSignInForm
+        })
+        setFormErrors(errors)
     }
 
     return (
@@ -53,12 +53,19 @@ const Login = () => {
 
                     {/* Name  */}
                     {!isSignInForm && (
-                        <input
-                            ref={name}
-                            type="text"
-                            placeholder="Full Name"
-                            className="p-4 my-3 text-white rounded border border-s-white "
-                        />
+                        <>
+                            <input
+                                ref={name}
+                                type="text"
+                                placeholder="Full Name"
+                                className="p-4 my-3 text-white rounded border border-s-white "
+                            />
+                            {formErrors.name && (
+                                <p className="text-red-600 font-semibold text-lg">
+                                    {formErrors.name}
+                                </p>
+                            )}
+                        </>
                     )}
 
                     {/* Email */}
@@ -68,6 +75,11 @@ const Login = () => {
                         placeholder="Email or Mobile Number"
                         className="p-4 my-3 text-white rounded border border-s-white "
                     />
+                    {formErrors.email && (
+                        <p className="text-red-600 font-semibold text-lg">
+                            {formErrors.email}
+                        </p>
+                    )}
 
                     {/* Password */}
                     <input
@@ -76,11 +88,11 @@ const Login = () => {
                         placeholder="Password"
                         className="p-4 my-3 rounded border text-white border-s-white"
                     />
-
-                    {/* Error Message */}
-                    <p className="text-red-600 font-semibold text-lg">
-                        {errorMsg}
-                    </p>
+                    {formErrors.password && (
+                        <p className="text-red-600 font-semibold text-lg">
+                            {formErrors.password}
+                        </p>
+                    )}
 
                     {/* Login, SignUp */}
                     <button
