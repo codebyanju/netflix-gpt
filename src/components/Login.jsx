@@ -3,6 +3,12 @@ import Header from './Header'
 import { useEffect, useRef, useState } from 'react'
 import { validateFormFields } from '@/utils/validate'
 
+import {
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword
+} from 'firebase/auth'
+import { auth } from '@/utils/firebase'
+
 const Login = () => {
     const name = useRef(null)
     const email = useRef(null)
@@ -28,9 +34,41 @@ const Login = () => {
         })
         setFormErrors(errors)
 
-        console.log(Object.keys(errors))
-        if (Object.keys(errors).length === 0) {
-            console.log('Form is valid ✅')
+        if (Object.keys(errors).length !== 0) return
+
+        if (!isSignInForm) {
+            // Sign Up Form
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Signed up
+                    const user = userCredential.user
+                    console.log('Sign Up user - ', user)
+                })
+                .catch((error) => {
+                    const errorCode = error.code
+                    const errorMessage = error.message
+                    console.log(
+                        'Sign Up user error - ',
+                        errorCode + ' ' + errorMessage
+                    )
+                })
+        } else {
+            // Sign In Form
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Signed in
+                    const user = userCredential.user
+                    console.log('Signed In user - ', user)
+                })
+                .catch((error) => {
+                    const errorCode = error.code
+                    const errorMessage = error.message
+                    console.log(
+                        'Signed user error - ',
+                        errorCode + ' ' + errorMessage
+                    )
+                    // setFormErrors()
+                })
         }
     }
 
