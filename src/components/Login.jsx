@@ -2,163 +2,120 @@ import { LOGIN_BG_IMG } from '@/utils/constants'
 import Header from './Header'
 import { useEffect, useRef, useState } from 'react'
 import { validateFormFields } from '@/utils/validate'
-
-import {
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword
-} from 'firebase/auth'
-import { auth } from '@/utils/firebase'
+import { signIn, signUp } from '@/api/auth'
 
 const Login = () => {
-    const name = useRef(null)
-    const email = useRef(null)
-    const password = useRef(null)
-    const [isSignInForm, setIsSignInForm] = useState(true)
-    const [formErrors, setFormErrors] = useState({})
+  const name = useRef(null)
+  const email = useRef(null)
+  const password = useRef(null)
+  const [isSignInForm, setIsSignInForm] = useState(true)
+  const [formErrors, setFormErrors] = useState({})
 
-    useEffect(() => {
-        email.current.focus()
-        // email.current.style.display = 'none'
-    }, [isSignInForm])
+  useEffect(() => {
+    email.current.focus()
+    // email.current.style.display = 'none'
+  }, [isSignInForm])
 
-    const toggleSignInForm = () => {
-        setIsSignInForm((prev) => !prev)
+  const toggleSignInForm = () => {
+    setIsSignInForm((prev) => !prev)
+  }
+
+  const validateForm = async () => {
+    const errors = validateFormFields({
+      name: isSignInForm ? '' : name.current.value,
+      email: email.current.value,
+      password: password.current.value,
+      isSignInForm: isSignInForm,
+    })
+    setFormErrors(errors)
+
+    if (Object.keys(errors).length !== 0) return
+
+    if (!isSignInForm) {
+      // Sign Up Form
+      const result = await signUp(email?.current.value, password.current.value)
+
+      if (result.error) {
+        console.log(result.error)
+      } else {
+        console.log(result.user)
+      }
+    } else {
+      // Sign In Form
+      const result = await signIn(email?.current.value, password.current.value)
+
+      if (result.error) {
+        console.log(result.error)
+      } else {
+        console.log(result.user)
+      }
     }
+  }
 
-    const validateForm = () => {
-        const errors = validateFormFields({
-            name: isSignInForm ? '' : name?.current.value,
-            email: email?.current.value,
-            password: password?.current.value,
-            isSignInForm: isSignInForm
-        })
-        setFormErrors(errors)
+  return (
+    <div className='relative h-screen w-screen'>
+      {/* Bg Image */}
+      <img className='absolute top-0 left-0 w-full h-full ' src={LOGIN_BG_IMG} alt='netflix-bg-img'></img>
 
-        if (Object.keys(errors).length !== 0) return
+      <div className='absolute top-0 left-0 w-full h-full bg-black/50'>
+        {/* Header */}
+        <Header />
 
-        if (!isSignInForm) {
-            // Sign Up Form
-            createUserWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    // Signed up
-                    const user = userCredential.user
-                    console.log('Sign Up user - ', user)
-                })
-                .catch((error) => {
-                    const errorCode = error.code
-                    const errorMessage = error.message
-                    console.log(
-                        'Sign Up user error - ',
-                        errorCode + ' ' + errorMessage
-                    )
-                })
-        } else {
-            // Sign In Form
-            signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    // Signed in
-                    const user = userCredential.user
-                    console.log('Signed In user - ', user)
-                })
-                .catch((error) => {
-                    const errorCode = error.code
-                    const errorMessage = error.message
-                    console.log(
-                        'Signed user error - ',
-                        errorCode + ' ' + errorMessage
-                    )
-                    // setFormErrors()
-                })
-        }
-    }
+        {/* Form */}
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/70 p-8 w-100 flex flex-col'
+        >
+          <h2 className='text-white text-3xl font-bold text-center mb-6'>{isSignInForm ? 'Sign In' : 'Sign Up'}</h2>
 
-    return (
-        <div className="relative h-screen w-screen">
-            {/* Bg Image */}
-            <img
-                className="absolute top-0 left-0 w-full h-full "
-                src={LOGIN_BG_IMG}
-                alt="netflix-bg-img"
-            ></img>
+          {/* Name  */}
+          {!isSignInForm && (
+            <>
+              <input
+                ref={name}
+                type='text'
+                placeholder='Full Name'
+                className='p-4 my-3 text-white rounded border border-s-white '
+              />
+              {formErrors.name && <p className='text-red-600 font-semibold text-lg'>{formErrors.name}</p>}
+            </>
+          )}
 
-            <div className="absolute top-0 left-0 w-full h-full bg-black/50">
-                {/* Header */}
-                <Header />
+          {/* Email */}
+          <input
+            ref={email}
+            type='text'
+            placeholder='Email or Mobile Number'
+            className='p-4 my-3 text-white rounded border border-s-white '
+          />
+          {formErrors.email && <p className='text-red-600 font-semibold text-lg'>{formErrors.email}</p>}
 
-                {/* Form */}
-                <form
-                    onSubmit={(e) => e.preventDefault()}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/70 p-8 w-100 flex flex-col"
-                >
-                    <h2 className="text-white text-3xl font-bold text-center mb-6">
-                        {isSignInForm ? 'Sign In' : 'Sign Up'}
-                    </h2>
+          {/* Password */}
+          <input
+            ref={password}
+            type='password'
+            placeholder='Password'
+            className='p-4 my-3 rounded border text-white border-s-white'
+          />
+          {formErrors.password && <p className='text-red-600 font-semibold text-lg'>{formErrors.password}</p>}
 
-                    {/* Name  */}
-                    {!isSignInForm && (
-                        <>
-                            <input
-                                ref={name}
-                                type="text"
-                                placeholder="Full Name"
-                                className="p-4 my-3 text-white rounded border border-s-white "
-                            />
-                            {formErrors.name && (
-                                <p className="text-red-600 font-semibold text-lg">
-                                    {formErrors.name}
-                                </p>
-                            )}
-                        </>
-                    )}
+          {/* Login, SignUp */}
+          <button
+            onClick={validateForm}
+            className='bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded my-3 cursor-pointer'
+          >
+            {isSignInForm ? 'Login' : 'Sign Up'}
+          </button>
 
-                    {/* Email */}
-                    <input
-                        ref={email}
-                        type="text"
-                        placeholder="Email or Mobile Number"
-                        className="p-4 my-3 text-white rounded border border-s-white "
-                    />
-                    {formErrors.email && (
-                        <p className="text-red-600 font-semibold text-lg">
-                            {formErrors.email}
-                        </p>
-                    )}
-
-                    {/* Password */}
-                    <input
-                        ref={password}
-                        type="password"
-                        placeholder="Password"
-                        className="p-4 my-3 rounded border text-white border-s-white"
-                    />
-                    {formErrors.password && (
-                        <p className="text-red-600 font-semibold text-lg">
-                            {formErrors.password}
-                        </p>
-                    )}
-
-                    {/* Login, SignUp */}
-                    <button
-                        onClick={validateForm}
-                        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded my-3 cursor-pointer"
-                    >
-                        {isSignInForm ? 'Login' : 'Sign Up'}
-                    </button>
-
-                    <p className="text-white py-2">
-                        {isSignInForm
-                            ? 'New to Netflix? '
-                            : 'Already a member? '}
-                        <span
-                            onClick={toggleSignInForm}
-                            className="hover:underline cursor-pointer"
-                        >
-                            {isSignInForm ? 'Sign up now.' : 'Login.'}
-                        </span>
-                    </p>
-                </form>
-            </div>
-        </div>
-    )
+          <p className='text-white py-2'>
+            {isSignInForm ? 'New to Netflix? ' : 'Already a member? '}
+            <span onClick={toggleSignInForm} className='hover:underline cursor-pointer'>
+              {isSignInForm ? 'Sign up now.' : 'Login.'}
+            </span>
+          </p>
+        </form>
+      </div>
+    </div>
+  )
 }
 export default Login
